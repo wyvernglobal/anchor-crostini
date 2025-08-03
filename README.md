@@ -1,4 +1,7 @@
-<<<<<<< HEAD
+![Build & Push](https://github.com/wyvernglobal/anchor-crostini/actions/workflows/publish.yml/badge.svg)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+[![GHCR](https://img.shields.io/badge/container-ghcr.io%2Fwyvernglobal%2Fanchor--crostini-blue?logo=docker)](https://github.com/orgs/wyvernglobal/packages/container/package/anchor-crostini)
+
 # anchor-crostini
 Anchor development environment for Crostini / Chromebook and other Debian OSs.
 =======
@@ -6,11 +9,6 @@ Anchor development environment for Crostini / Chromebook and other Debian OSs.
 
 A Chromebook/Crostini-compatible **and standard Debian-compatible** development container for building and testing Solana smart contracts using Anchor.
 
-🛠️ Built with:
-- ✅ Latest stable Rust
-- ✅ Anchor CLI
-- ✅ Solana CLI
-- ✅ `cargo-build-sbf` patched from source
 
 ## 🚀 Quick Start
 
