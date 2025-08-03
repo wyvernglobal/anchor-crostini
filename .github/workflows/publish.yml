@@ -31,6 +31,8 @@ jobs:
 
     - name: Build and push
       uses: docker/build-push-action@v5
+          - name: Build and push
+      uses: docker/build-push-action@v5
       with:
         context: .
         push: true
@@ -38,6 +40,7 @@ jobs:
           ghcr.io/${{ github.repository_owner }}/anchor-crostini:latest
           ghcr.io/${{ github.repository_owner }}/anchor-crostini:stable
           ghcr.io/${{ github.repository_owner }}/anchor-crostini:v1.0.0
-          wyvernglobal/anchor-crostini:latest
-          wyvernglobal/anchor-crostini:stable
-          wyvernglobal/anchor-crostini:v1.0.0
+          josh56432/anchor-crostini:latest
+          josh56432/anchor-crostini:stable
+          josh56432/anchor-crostini:v1.0.0
+
