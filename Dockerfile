@@ -25,12 +25,13 @@ RUN cargo install --git https://github.com/coral-xyz/anchor anchor-cli --locked
 RUN sh -c "$(curl -sSfL https://release.solana.com/stable/install)" \
  && ln -s /root/.local/share/solana/install/active_release/bin/solana /usr/local/bin/solana
 
-# Clone and patch Solana repo to build cargo-build-sbf
+# Clone and patch Solana repo to build cargo-build-sbf, then clean up
 RUN git clone https://github.com/solana-labs/solana.git /tmp/solana \
  && rm /tmp/solana/rust-toolchain.toml \
  && sed -i 's|cargo=.*|cargo="$(which cargo)"|' /tmp/solana/scripts/cargo-install-all.sh \
  && export CARGO=$(which cargo) && export RUSTC=$(which rustc) \
  && cd /tmp/solana && ./scripts/cargo-install-all.sh . \
- && ln -sf /usr/local/cargo/bin/cargo-build-sbf /usr/local/bin/cargo-build-sbf
+ && ln -sf /usr/local/cargo/bin/cargo-build-sbf /usr/local/bin/cargo-build-sbf \
+ && rm -rf /tmp/solana
 
 WORKDIR /work
