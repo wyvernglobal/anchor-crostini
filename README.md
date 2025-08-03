@@ -9,6 +9,12 @@ Anchor development environment for Crostini / Chromebook and other Debian OSs.
 
 A Chromebook / Crostini and standard Debian-compatible development container for building and testing Solana smart contracts using Anchor. Uses podman, can work on docker.
 
+## ☕ Support This Project
+
+<a href="https://www.buymeacoffee.com/josh56432" target="_blank">
+  <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="40" />
+</a>
+
 
 ## 🚀 Quick Start
 

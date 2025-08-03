@@ -2,6 +2,8 @@ name: Build and Push to GHCR and DockerHub
 
 on:
   push:
+    tags:
+      - 'v*'
     branches: [main]
 
 jobs:
@@ -37,9 +39,9 @@ jobs:
         tags: |
           ghcr.io/${{ github.repository_owner }}/anchor-crostini:latest
           ghcr.io/${{ github.repository_owner }}/anchor-crostini:stable
-          ghcr.io/${{ github.repository_owner }}/anchor-crostini:v1.0.0
+          ghcr.io/${{ github.repository_owner }}/anchor-crostini:${{ github.ref_name }}
           josh56432/anchor-crostini:latest
           josh56432/anchor-crostini:stable
-          josh56432/anchor-crostini:v1.0.0
+          josh56432/anchor-crostini:${{ github.ref_name }}
 
 
