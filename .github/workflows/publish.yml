@@ -1,0 +1,43 @@
+name: Build and Push to GHCR and DockerHub
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to GHCR
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Log in to DockerHub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build and push
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: |
+          ghcr.io/${{ github.repository_owner }}/anchor-crostini:latest
+          ghcr.io/${{ github.repository_owner }}/anchor-crostini:stable
+          ghcr.io/${{ github.repository_owner }}/anchor-crostini:v1.0.0
+          wyvernglobal/anchor-crostini:latest
+          wyvernglobal/anchor-crostini:stable
+          wyvernglobal/anchor-crostini:v1.0.0
