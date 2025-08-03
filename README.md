@@ -50,4 +50,4 @@ podman pull josh56432/anchor-crostini:stable
 
 Licensed under the Apache License, Version 2.0.
 See the `LICENSE` file or <https://www.apache.org/licenses/LICENSE-2.0>.
->>>>>>> 0b34f5a (Initial Release v1.0.0 Stable)
+
