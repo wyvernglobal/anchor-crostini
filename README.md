@@ -7,7 +7,7 @@ Anchor development environment for Crostini / Chromebook and other Debian OSs.
 =======
 # anchor-crostini (by Wyvern Global)
 
-A Chromebook/Crostini-compatible **and standard Debian-compatible** development container for building and testing Solana smart contracts using Anchor.
+A Chromebook / Crostini and standard Debian-compatible development container for building and testing Solana smart contracts using Anchor. Uses podman, can work on docker.
 
 
 ## 🚀 Quick Start
@@ -31,10 +31,14 @@ echo "alias anchor-dev='podman run -it --rm -v \$PWD:/work -w /work --network ho
 source ~/.bashrc
 ```
 
-### 3. Pull from GitHub Container Registry (GHCR)
+### 3. Pull from GitHub Container Registry (GHCR) or Dockerhub
 
 ```bash
-podman pull ghcr.io/wyvernglobal/anchor-crostini:latest
+# From GHCR
+podman pull ghcr.io/wyvernglobal/anchor-crostini:stable
+
+# From DockerHub
+podman pull josh56432/anchor-crostini:stable
 ```
 
 ## ✅ Compatibility
