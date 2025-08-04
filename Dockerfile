@@ -14,13 +14,12 @@ RUN apt-get update && apt-get install -y \
     clang libclang-dev llvm-dev cmake zlib1g-dev \
     nodejs npm
 
-# Install Rust (nightly) and set it globally
+# Install Rust nightly and make it default
 RUN curl https://sh.rustup.rs -sSf | bash -s -- -y --default-toolchain nightly && \
-    rustup install nightly && \
-    rustup default nightly && \
-    rustup override set nightly
+    rustup update nightly && \
+    rustup default nightly
 
-# Install Anchor CLI
+# Install Anchor CLI (using nightly)
 RUN cargo install --git https://github.com/coral-xyz/anchor anchor-cli --locked
 
 # Build cargo-build-sbf from Solana repo
@@ -42,16 +41,15 @@ RUN apt-get update && apt-get install -y \
     ca-certificates curl libssl-dev libudev-dev pkg-config && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-ENV PATH="/tmp/solana/bin:/usr/local/cargo/bin:$PATH" \
-    RUSTUP_HOME=/usr/local/rustup \
-    CARGO_HOME=/usr/local/cargo
+ENV PATH="/tmp/solana/bin:/usr/local/cargo/bin:/usr/local/rustup/bin:$PATH"
 
 # Copy only the tools we need
 COPY --from=builder /usr/local/cargo /usr/local/cargo
 COPY --from=builder /usr/local/rustup /usr/local/rustup
 COPY --from=builder /tmp/solana/bin /tmp/solana/bin
 
-# Set nightly toolchain as default explicitly at runtime
-RUN rustup default nightly
-
+# Set up project directory
 WORKDIR /anchor-crostini
+
+# Ensure nightly is the active toolchain
+RUN rustup default nightly
