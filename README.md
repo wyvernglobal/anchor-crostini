@@ -18,6 +18,18 @@ A Chromebook / Crostini and standard Debian-compatible development container for
 
 ## 🚀 Quick Start
 
+## 🛠 Pre checks
+
+Ensure that the following has an output:
+```bash
+sudo grep $(whoami) /etc/subuid /etc/subgid
+```
+If not, then perform the following before building or pulling the package:
+```bash
+echo "$(whoami):100000:65536" | sudo tee -a /etc/subuid | sudo tee -a /etc/subgid
+podman system migrate
+```
+
 ### 1. Build locally (on Debian or Crostini)
 
 ```bash
