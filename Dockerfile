@@ -1,56 +1,50 @@
-# ----------- Stage 1: Builder ------------
-FROM debian:bookworm as builder
+# Stage 1: Builder
+FROM debian:bookworm-slim AS builder
 
 ENV RUSTUP_HOME=/usr/local/rustup \
     CARGO_HOME=/usr/local/cargo \
-    PATH=/usr/local/cargo/bin:/usr/local/rustup/bin:$PATH \
-    SOLANA_INSTALL_DIR=/opt/solana
+    PATH=/usr/local/cargo/bin:/usr/local/rustup/bin:$PATH
 
 # Install build dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y \
     curl git wget xz-utils gnupg \
     build-essential pkg-config \
     libssl-dev libudev-dev \
     protobuf-compiler \
     clang libclang-dev llvm-dev cmake zlib1g-dev \
-    nodejs npm ca-certificates \
- && rm -rf /var/lib/apt/lists/*
+    nodejs npm
 
-# Install Rust via rustup
-RUN curl https://sh.rustup.rs -sSf | bash -s -- -y \
- && rustup install stable \
- && rustup default stable
+# Install Rust (latest stable)
+RUN curl https://sh.rustup.rs -sSf | bash -s -- -y && \
+    rustup install stable && rustup default stable
 
 # Install Anchor CLI
 RUN cargo install --git https://github.com/coral-xyz/anchor anchor-cli --locked
 
-# Install Solana CLI to custom path
-RUN sh -c "$(curl -sSfL https://release.solana.com/stable/install)" \
- && ln -s $SOLANA_INSTALL_DIR/install/active_release/bin/solana /usr/local/bin/solana
+# Build cargo-build-sbf from Solana repo
+RUN git clone https://github.com/solana-labs/solana.git /tmp/solana && \
+    rm /tmp/solana/rust-toolchain.toml && \
+    sed -i 's|cargo=.*|cargo="$(which cargo)"|' /tmp/solana/scripts/cargo-install-all.sh && \
+    cd /tmp/solana && ./scripts/cargo-install-all.sh . && \
+    mkdir -p /tmp/solana/bin && \
+    cp target/release/cargo-build-sbf /tmp/solana/bin/ && \
+    cp target/release/solana /tmp/solana/bin/ && \
+    cp target/release/spl-token /tmp/solana/bin/ && \
+    strip /tmp/solana/bin/* || true
 
-# Manually build and install cargo-build-sbf from Solana repo
-RUN git clone https://github.com/solana-labs/solana.git /tmp/solana \
- && rm /tmp/solana/rust-toolchain.toml \
- && sed -i 's|cargo=.*|cargo="$(which cargo)"|' /tmp/solana/scripts/cargo-install-all.sh \
- && export CARGO=$(which cargo) && export RUSTC=$(which rustc) \
- && cd /tmp/solana && ./scripts/cargo-install-all.sh . \
- && ln -sf /usr/local/cargo/bin/cargo-build-sbf /usr/local/bin/cargo-build-sbf
+# Stage 2: Final image
+FROM debian:bookworm-slim AS final
 
-# ----------- Stage 2: Runtime ------------
-FROM debian:bookworm-slim
+# Minimal runtime dependencies
+RUN apt-get update && apt-get install -y \
+    ca-certificates curl libssl-dev libudev-dev pkg-config && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-ENV RUSTUP_HOME=/usr/local/rustup \
-    CARGO_HOME=/usr/local/cargo \
-    PATH=/usr/local/cargo/bin:/usr/local/rustup/bin:/opt/solana/install/active_release/bin:$PATH
+ENV PATH="/tmp/solana/bin:/usr/local/cargo/bin:$PATH"
 
-# Install runtime-only dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates curl libssl-dev pkg-config libudev-dev \
- && rm -rf /var/lib/apt/lists/*
-
-# Copy tools from builder
-COPY --from=builder /usr/local /usr/local
-COPY --from=builder /opt/solana /opt/solana
+# Copy only the tools we need
+COPY --from=builder /usr/local/cargo /usr/local/cargo
+COPY --from=builder /usr/local/rustup /usr/local/rustup
 COPY --from=builder /tmp/solana/bin /tmp/solana/bin
 
 WORKDIR /work
