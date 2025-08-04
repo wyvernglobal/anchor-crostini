@@ -14,42 +14,42 @@ RUN apt-get update && apt-get install -y \
     clang libclang-dev llvm-dev cmake zlib1g-dev \
     nodejs npm
 
-# Install Rust with nightly as default, stable also available
-RUN curl https://sh.rustup.rs -sSf | bash -s -- -y --default-toolchain nightly && \
-    rustup update nightly && \
+# Install both nightly and stable toolchains
+RUN curl https://sh.rustup.rs -sSf | bash -s -- -y && \
     rustup install stable && \
+    rustup install nightly && \
     rustup default nightly
 
-# Install Anchor CLI on nightly
+# Install Anchor CLI using nightly
 RUN cargo install --git https://github.com/coral-xyz/anchor anchor-cli --locked
 
-# Build Solana tools using *stable* Rust to avoid nightly breakage
-RUN rustup run stable bash -c '\
-    git clone https://github.com/solana-labs/solana.git /tmp/solana && \
+# Clone and build Solana tools with stable
+RUN rustup run stable git clone https://github.com/solana-labs/solana.git /tmp/solana && \
     rm /tmp/solana/rust-toolchain.toml && \
-    sed -i "s|cargo=.*|cargo=$(which cargo)|" /tmp/solana/scripts/cargo-install-all.sh && \
-    cd /tmp/solana && ./scripts/cargo-install-all.sh . && \
+    sed -i 's|cargo=.*|cargo="$(which cargo)"|' /tmp/solana/scripts/cargo-install-all.sh && \
+    cd /tmp/solana && rustup run stable ./scripts/cargo-install-all.sh . && \
     mkdir -p /tmp/solana/bin && \
-    cp target/release/cargo-build-sbf /tmp/solana/bin/ && \
-    cp target/release/solana /tmp/solana/bin/ && \
-    cp target/release/spl-token /tmp/solana/bin/ && \
-    strip /tmp/solana/bin/* || true'
+    cp target/release/{cargo-build-sbf,solana,spl-token} /tmp/solana/bin/ && \
+    strip /tmp/solana/bin/* || true
 
-# Stage 2: Final minimal image
+# Stage 2: Final image
 FROM debian:bookworm-slim AS final
 
-# Minimal runtime dependencies
+ENV RUSTUP_HOME=/usr/local/rustup \
+    CARGO_HOME=/usr/local/cargo \
+    PATH="/tmp/solana/bin:/usr/local/cargo/bin:/usr/local/rustup/bin:$PATH"
+
+# Runtime dependencies only
 RUN apt-get update && apt-get install -y \
     ca-certificates curl libssl-dev libudev-dev pkg-config && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-ENV PATH="/tmp/solana/bin:/usr/local/cargo/bin:/usr/local/rustup/bin:$PATH"
-WORKDIR /anchor-crostini
-
-# Copy Rust + Solana tooling
+# Copy built tools and rust toolchains
 COPY --from=builder /usr/local/cargo /usr/local/cargo
 COPY --from=builder /usr/local/rustup /usr/local/rustup
 COPY --from=builder /tmp/solana/bin /tmp/solana/bin
 
-# Set default toolchain to nightly
+# Ensure nightly is default
 RUN rustup default nightly
+
+WORKDIR /anchor-crostini
