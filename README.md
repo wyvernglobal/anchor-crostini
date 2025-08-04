@@ -29,14 +29,25 @@ If not, then perform the following before building or pulling the package:
 echo "$(whoami):100000:65536" | sudo tee -a /etc/subuid | sudo tee -a /etc/subgid
 podman system migrate
 ```
-
-### 1. Build locally (on Debian or Crostini)
+### Option 1. Pull from GitHub Container Registry (GHCR) or Dockerhub
 
 ```bash
+# From GHCR
+podman pull ghcr.io/wyvernglobal/anchor-crostini:stable
+
+# From DockerHub
+podman pull josh56432/anchor-crostini:stable
+```
+
+### Option 2. Build locally (on Debian or Crostini)
+
+```bash
+git clone https://github.com/wyvernglobal/anchor-crostini.git
+cd ./anchor-crostini
 podman build -t anchor-crostini .
 ```
 
-### 2. Run it
+### Run it
 
 ```bash
 podman run -it --rm -v $PWD:/work -w /work --network host anchor-crostini bash
@@ -48,15 +59,9 @@ Or add an alias to `~/.bashrc` or `~/.zshrc`:
 echo "alias anchor-dev='podman run -it --rm -v \$PWD:/work -w /work --network host ghcr.io/wyvernglobal/anchor-crostini:latest bash'" >> ~/.bashrc
 source ~/.bashrc
 ```
-
-### 3. Pull from GitHub Container Registry (GHCR) or Dockerhub
-
+Then run with:
 ```bash
-# From GHCR
-podman pull ghcr.io/wyvernglobal/anchor-crostini:stable
-
-# From DockerHub
-podman pull josh56432/anchor-crostini:stable
+anchor-dev
 ```
 
 ## ✅ Compatibility
