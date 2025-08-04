@@ -14,9 +14,10 @@ RUN apt-get update && apt-get install -y \
     clang libclang-dev llvm-dev cmake zlib1g-dev \
     nodejs npm
 
-# Install Rust (latest stable)
+# Install Rust (latest stable) and set default
 RUN curl https://sh.rustup.rs -sSf | bash -s -- -y && \
-    rustup install stable && rustup default stable
+    rustup install stable && \
+    rustup default stable
 
 # Install Anchor CLI
 RUN cargo install --git https://github.com/coral-xyz/anchor anchor-cli --locked
@@ -35,16 +36,22 @@ RUN git clone https://github.com/solana-labs/solana.git /tmp/solana && \
 # Stage 2: Final image
 FROM debian:bookworm-slim AS final
 
+ENV RUSTUP_HOME=/usr/local/rustup \
+    CARGO_HOME=/usr/local/cargo \
+    PATH=/usr/local/cargo/bin:/usr/local/rustup/bin:/tmp/solana/bin:$PATH
+
 # Minimal runtime dependencies
 RUN apt-get update && apt-get install -y \
     ca-certificates curl libssl-dev libudev-dev pkg-config && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-ENV PATH="/tmp/solana/bin:/usr/local/cargo/bin:$PATH"
-
-# Copy only the tools we need
+# Copy Rust toolchain and binaries
 COPY --from=builder /usr/local/cargo /usr/local/cargo
 COPY --from=builder /usr/local/rustup /usr/local/rustup
 COPY --from=builder /tmp/solana/bin /tmp/solana/bin
 
-WORKDIR /work
+# Set stable toolchain as default in final image
+RUN rustup default stable
+
+# Set working directory
+WORKDIR /anchor-crostini
