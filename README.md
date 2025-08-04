@@ -56,12 +56,12 @@ podman run -it --rm -v $PWD:/work -w /work --network host anchor-crostini bash
 Or add an alias to `~/.bashrc` or `~/.zshrc`:
 
 ```bash
-echo "alias anchor-dev='podman run -it --rm -v \$PWD:/work -w /work --network host ghcr.io/wyvernglobal/anchor-crostini:latest bash'" >> ~/.bashrc
+echo "alias anchor-crostini='podman run -it --rm -v \$PWD:/anchor-crostini -w /anchor-crostini --network host ghcr.io/wyvernglobal/anchor-crostini:latest bash'" >> ~/.bashrc
 source ~/.bashrc
 ```
 Then run with:
 ```bash
-anchor-dev
+anchor-crostini
 ```
 
 ## ✅ Compatibility
