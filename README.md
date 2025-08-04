@@ -50,7 +50,7 @@ podman build -t anchor-crostini .
 ### Run it
 
 ```bash
-podman run -it --rm -v $PWD:/work -w /work --network host anchor-crostini bash
+podman run -it --rm -v $PWD:/anchor-crostini -w /anchor-crostini --network host anchor-crostini bash
 ```
 
 Or add an alias to `~/.bashrc` or `~/.zshrc`:
