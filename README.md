@@ -34,7 +34,8 @@ podman system migrate
 ```bash
 # From GHCR
 podman pull ghcr.io/wyvernglobal/anchor-crostini:stable
-
+```
+```bash
 # From DockerHub
 podman pull josh56432/anchor-crostini:stable
 ```
